@@ -1,0 +1,28 @@
+body{
+    background-color: #8232ee;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.titulo{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+h2{
+    margin: 200px;
+}
+button{
+    border-radius: 20px;
+    background: rgba(69, 16, 169, 0.93);
+    
+    width: 243px;
+    height: 49px;
+    color: #FFFFFF;
+    margin: 70px 10px 10px 10px;
+    box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.25);
+    outline: none;
+    border: none;
+}

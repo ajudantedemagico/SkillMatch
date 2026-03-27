@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch — Home</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+<div class="app-shell">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="logo">Skill<span>Match</span></div>
+    <button onclick="api.logout()" class="btn btn-ghost btn-sm" style="width:auto;margin-left:auto;padding:6px 12px">Sair</button>
+  </div>
+
+  <!-- Hero -->
+  <div class="home-hero">
+    <div class="avatar" id="avatar-initials">?</div>
+    <div>
+      <div class="greeting">Olá </div>
+      <div class="name" id="user-name">Carregando...</div>
+    </div>
+  </div>
+
+  <p class="tagline">o <strong>match</strong> certo para a sua carreira.</p>
+
+  <!-- Ações principais -->
+  <div class="home-actions pb-nav">
+    <a href="pages/chat.html" class="btn btn-primary" style="text-decoration:none">
+       Gerar currículo com IA
+    </a>
+    <a href="pages/perfil.html" class="btn btn-ghost" style="text-decoration:none">
+       Editar Perfil Âncora
+    </a>
+    <a href="pages/historico.html" class="btn btn-ghost" style="text-decoration:none">
+       Histórico de CVs
+    </a>
+  </div>
+</div>
+
+<!-- Nav inferior -->
+<nav class="bottom-nav">
+  <a href="app.html" class="active">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    Home
+  </a>
+  <a href="pages/chat.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Gerar CV
+  </a>
+  <a href="pages/historico.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Histórico
+  </a>
+</nav>
+
+<script src="js/api.js"></script>
+<script>
+  requireAuth();
+  const user = api.getUser();
+  if (user) {
+    document.getElementById('user-name').textContent = user.nome;
+    document.getElementById('avatar-initials').textContent =
+      user.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  }
+</script>
+</body>
+</html>

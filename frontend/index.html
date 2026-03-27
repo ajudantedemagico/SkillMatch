@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .auth-shell {
+      max-width: 430px; margin: 0 auto; min-height: 100vh;
+      background: linear-gradient(160deg, #2D0060 0%, #6B00D7 100%);
+      display: flex; flex-direction: column;
+    }
+    .auth-top {
+      padding: 60px 24px 40px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .auth-top .logo-big { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+    .auth-top .logo-big span { color: #ffffff; }
+    .auth-top .tagline { font-size: 14px; text-align: center; }
+    .tabs { display: flex; background: rgba(255,255,255,0.1); border-radius: 12px; margin: 0 16px; }
+    .tab-btn {
+      flex: 1; padding: 12px; border: none; background: none; color: rgba(255,255,255,0.6);
+      font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { background: rgba(255,255,255,0.2); color: #fff; }
+    .auth-form { padding: 24px 16px 40px; }
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+    .forgot-link { text-align: right; margin-top: -8px; margin-bottom: 8px; }
+    .forgot-link a { color: #B066F5; font-size: 13px; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="auth-shell">
+  <div class="auth-top">
+    <div class="logo-big">Skill<span>Match</span></div>
+    <p class="tagline">o <strong>match</strong> certo para a sua carreira.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+    <button class="tab-btn" onclick="switchTab('cadastro')">Cadastrar-se</button>
+  </div>
+
+  <div class="auth-form">
+    <!-- LOGIN -->
+    <div id="panel-login" class="form-panel active">
+      <div class="card">
+        <h2>Login</h2>
+        <p>Acesse sua conta SkillMatch</p>
+        <form id="form-login">
+          <div class="field">
+            <label>E-mail</label>
+            <input type="email" id="login-email" required placeholder="seu@email.com" />
+          </div>
+          <div class="field">
+            <label>Senha</label>
+            <input type="password" id="login-senha" required placeholder="••••••••" />
+          </div>
+          <div class="forgot-link"><a href="pages/recuperar-senha.html">Esqueci a senha</a></div>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+          <p class="text-center mt-16 text-sm">
+            Não tem conta? <a class="link" href="#" onclick="switchTab('cadastro')">Cadastre-se</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- CADASTRO -->
+    <div id="panel-cadastro" class="form-panel">
+      <div class="card">
+        <h2>Cadastrar-se</h2>
+        <p>Crie sua conta e comece a gerar currículos</p>
+        <form id="form-cadastro">
+          <div class="field">
+            <label>Nome completo</label>
+            <input type="text" id="cad-nome" required placeholder="Joana Souza" />
+          </div>
+          <div class="field">
+            <label>E-mail</label>
+            <input type="email" id="cad-email" required placeholder="seu@email.com" />
+          </div>
+          <div class="field">
+            <label>Senha</label>
+            <input type="password" id="cad-senha" required placeholder="Mínimo 6 caracteres" minlength="6" />
+          </div>
+          <div class="field">
+            <label>Confirmar senha</label>
+            <input type="password" id="cad-confirma" required placeholder="Repita a senha" />
+          </div>
+          <button type="submit" class="btn btn-primary">Criar conta</button>
+          <p class="text-center mt-16 text-sm">
+            Já tem conta? <a class="link" href="#" onclick="switchTab('login')">Fazer login</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  // Redireciona se já logado
+  if (api.isLoggedIn()) window.location.href = 'app.html';
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) =>
+      b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'cadastro')));
+    document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+    document.getElementById('panel-cadastro').classList.toggle('active', tab === 'cadastro');
+  }
+
+  document.getElementById('form-login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    try {
+      await api.login(
+        document.getElementById('login-email').value,
+        document.getElementById('login-senha').value
+      );
+      window.location.href = 'app.html';
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  });
+
+  document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (document.getElementById('cad-senha').value !== document.getElementById('cad-confirma').value) {
+      showToast('As senhas não coincidem.', 'error'); return;
+    }
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Criando conta...';
+    try {
+      await api.register(
+        document.getElementById('cad-nome').value,
+        document.getElementById('cad-email').value,
+        document.getElementById('cad-senha').value
+      );
+      window.location.href = 'app.html';
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false; btn.textContent = 'Criar conta';
+    }
+  });
+</script>
+</body>
+</html>

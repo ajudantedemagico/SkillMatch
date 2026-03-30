@@ -1,0 +1,113 @@
+/* ─────────────────────────────────────────────
+   SkillMatch — Design System
+   Paleta: roxo conforme wireframes
+───────────────────────────────────────────── */
+:root {
+  --purple-dark:  #2D0060;
+  --purple-main:  #6B00D7;
+  --purple-mid:   #8B2AE8;
+  --purple-light: #B066F5;
+  --purple-bg:    #F3E8FF;
+  --white:        #FFFFFF;
+  --gray-100:     #F5F5F5;
+  --gray-300:     #D1D1D1;
+  --gray-500:     #7A7A7A;
+  --gray-700:     #3D3D3D;
+  --danger:       #E53935;
+  --success:      #2E7D32;
+
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    20px;
+  --shadow:       0 4px 20px rgba(107,0,215,0.15);
+  --transition:   0.2s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: var(--purple-dark);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* ── Layout principal ── */
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--purple-dark) 0%, var(--purple-main) 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.app-header {
+  padding: 20px 24px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-header .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.app-header .logo span { color: var(--white); }
+.app-header .back-btn {
+  background: none; border: none; color: var(--white);
+  font-size: 20px; cursor: pointer; padding: 4px;
+}
+
+/* ── Cartão branco flutuante ── */
+.card {
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  color: var(--gray-700);
+  margin: 0 16px;
+}
+.card h2 { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.card p  { font-size: 13px; color: var(--white); margin-bottom: 20px; }
+
+/* ── Campos de formulário ── */
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--white); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--gray-700);
+  background: var(--white);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus { border-color: var(--purple-main); }
+.field textarea { resize: vertical; min-height: 90px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Botões ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 24px;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+}
+.btn-primary { background: var(--purple-main); color: var(--white); }
+.btn-primary:hover { background: var(--purple-mid); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-secondary { background: transparent; color: var(--purple-main); border: 1.5px solid var(--purple-main); }
+.btn-secondary:hover { background: var(--purple-bg); }
+.btn-ghost { background: rgba(255,255,255,0.15); color: var(--white); }
+.btn-ghost:hover { background: rgba(255,255,255,0.25); }
+.btn-danger { background: var(--danger); color: var(--white); }
+.btn-sm { padding: 8px 16px; font-size: 13px; width: auto; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Link ── */
+.link { color: var(--white); text-decoration: none; font-size: 13px; font-weight: 500; }
+.link:hover { text-decoration: underline; }

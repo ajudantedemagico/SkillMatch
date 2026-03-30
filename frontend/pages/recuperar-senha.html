@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch — Recuperar Senha</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">  
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    .auth-shell { max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(160deg,#2D0060 0%,#6B00D7 100%);display:flex;flex-direction:column; }
+    .auth-top { padding:60px 24px 40px;display:flex;flex-direction:column;align-items:center;gap:8px; }
+    .logo-big { font-size:28px;font-weight:800;letter-spacing:-1px; }
+    .logo-big span { color:#ffffff; }
+  </style>
+</head>
+<body>
+<div class="auth-shell">
+  <div class="auth-top">
+    <div class="logo-big">Skill<span>Match</span></div>
+  </div>
+
+  <div style="padding:0 16px">
+    <!-- Step 1: Inserir email -->
+    <div id="step-email" class="card">
+      <h2>Redefinir Senha</h2>
+      <p>Informe seu e-mail para receber as instruções de recuperação.</p>
+      <div class="field"><label>E-mail</label><input type="email" id="email-rec" placeholder="seu@email.com" /></div>
+      <button class="btn btn-primary" onclick="enviarCodigo()">Redefinir</button>
+      <p class="text-center mt-16 text-sm"><a class="link" href="../index.html">← Voltar ao login</a></p>
+    </div>
+
+    <!-- Step 2: Código de verificação -->
+    <div id="step-codigo" class="card" style="display:none">
+      <h2>Informe o Código</h2>
+      <p>Foi enviado para o seu e-mail o código de verificação.</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin:20px 0">
+        <input type="text" maxlength="1" class="codigo-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #D1D1D1;border-radius:8px;color:#3D3D3D" oninput="autoTab(this,0)" />
+        <input type="text" maxlength="1" class="codigo-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #D1D1D1;border-radius:8px;color:#3D3D3D" oninput="autoTab(this,1)" />
+        <input type="text" maxlength="1" class="codigo-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #D1D1D1;border-radius:8px;color:#3D3D3D" oninput="autoTab(this,2)" />
+        <input type="text" maxlength="1" class="codigo-input" style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid #D1D1D1;border-radius:8px;color:#3D3D3D" oninput="autoTab(this,3)" />
+      </div>
+      <button class="btn btn-primary" onclick="verificarCodigo()">Enviar</button>
+    </div>
+
+    <!-- Step 3: Nova senha -->
+    <div id="step-nova-senha" class="card" style="display:none">
+      <h2>Nova Senha</h2>
+      <p>Escolha uma nova senha para sua conta.</p>
+      <div class="field"><label>Nova Senha</label><input type="password" id="nova-senha" placeholder="Mínimo 6 caracteres" minlength="6" /></div>
+      <button class="btn btn-primary" onclick="redefinirSenha()">Redefinir</button>
+    </div>
+
+    <!-- Step 4: Sucesso -->
+    <div id="step-sucesso" class="card" style="display:none;text-align:center">
+      <p style="font-size:48px;margin-bottom:16px">✅</p>
+      <h2>Sua senha foi redefinida com sucesso!</h2>
+      <p>Agora você pode fazer login com sua nova senha.</p>
+      <a href="../index.html" class="btn btn-primary mt-24" style="text-decoration:none;display:block">Fazer Login</a>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+  // Nota: fluxo de recuperação de senha via e-mail requer implementação
+  // de serviço de e-mail no backend (SendGrid, SMTP, etc.) — Sprint futura.
+  // Por ora, o frontend apresenta o fluxo visual completo conforme wireframes.
+
+  function show(id) {
+    ['step-email','step-codigo','step-nova-senha','step-sucesso'].forEach(s =>
+      document.getElementById(s).style.display = s === id ? 'block' : 'none');
+  }
+
+  function enviarCodigo() {
+    const email = document.getElementById('email-rec').value.trim();
+    if (!email) { showToast('Informe seu e-mail.', 'error'); return; }
+    // TODO: chamar endpoint de recuperação de senha quando implementado
+    showToast('Código enviado para ' + email);
+    show('step-codigo');
+  }
+
+  function autoTab(input, idx) {
+    if (input.value.length === 1) {
+      const inputs = document.querySelectorAll('.codigo-input');
+      if (idx < inputs.length - 1) inputs[idx + 1].focus();
+    }
+  }
+
+  function verificarCodigo() {
+    // TODO: validar código com backend
+    show('step-nova-senha');
+  }
+
+  function redefinirSenha() {
+    const senha = document.getElementById('nova-senha').value;
+    if (senha.length < 6) { showToast('Senha deve ter ao menos 6 caracteres.', 'error'); return; }
+    // TODO: chamar endpoint de redefinição
+    show('step-sucesso');
+  }
+</script>
+</body>
+</html>

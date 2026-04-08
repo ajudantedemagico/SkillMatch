@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch — Perfil Âncora</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    .step { display: none; }
+    .step.active { display: block; }
+    .exp-card, .form-card {
+      background: var(--gray-100); border-radius: var(--radius-sm);
+      padding: 14px; margin-bottom: 12px; position: relative;
+    }
+    .exp-card .remove-btn {
+      position: absolute; top: 10px; right: 10px;
+      background: none; border: none; color: var(--danger);
+      cursor: pointer; font-size: 18px;
+    }
+    .exp-card h4, .form-card h4 { font-size: 14px; font-weight: 600; color: var(--purple-main); margin-bottom: 8px; }
+    .add-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: var(--purple-bg);
+      border: 1.5px dashed var(--purple-light); border-radius: var(--radius-sm);
+      color: var(--purple-main); font-size: 14px; font-weight: 600;
+      cursor: pointer; width: 100%; justify-content: center;
+      transition: background 0.2s;
+    }
+    .add-btn:hover { background: #e8d5ff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+    .checkbox-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; }
+    .tag-input-row { display: flex; gap: 8px; }
+    .tag-input-row input { flex: 1; }
+    .nav-btns { display: flex; gap: 12px; margin-top: 16px; }
+    .nav-btns .btn { flex: 1; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="app-header">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="logo">Skill<span>Match</span></div>
+  </div>
+
+  <!-- Barra de progresso -->
+  <div class="steps-bar" id="steps-bar"></div>
+
+  <div style="padding: 20px 16px;" class="pb-nav">
+
+    <!-- PASSO 1: Dados Pessoais -->
+    <div class="step active" id="step-1">
+      <div class="card">
+        <h2>Dados Pessoais</h2>
+        <p>Suas informações de contato</p>
+        <div class="field"><label>Nome completo *</label><input type="text" id="nome" /></div>
+        <div class="field-row">
+          <div class="field"><label>Cidade *</label><input type="text" id="cidade" /></div>
+          <div class="field"><label>Estado *</label><input type="text" id="estado" placeholder="SP" maxlength="2" /></div>
+        </div>
+        <div class="field"><label>E-mail *</label><input type="email" id="email" /></div>
+        <div class="field"><label>Telefone *</label><input type="tel" id="telefone" placeholder="(11) 91234-5678" /></div>
+        <div class="field"><label>LinkedIn <span style="opacity:0.6">(opcional)</span></label><input type="url" id="linkedin" placeholder="linkedin.com/in/..." /></div>
+        <div class="field"><label>Portfólio / GitHub <span style="opacity:0.6">(opcional)</span></label><input type="url" id="portfolio" placeholder="github.com/..." /></div>
+        <div class="nav-btns"><button class="btn btn-primary" onclick="nextStep()">Avançar →</button></div>
+      </div>
+    </div>
+
+    <!-- PASSO 2: Escolaridade -->
+    <div class="step" id="step-2">
+      <div class="card">
+        <h2>Escolaridade</h2>
+        <p>Adicione suas formações acadêmicas</p>
+        <div id="formacoes-list"></div>
+        <button class="add-btn" onclick="addFormacao()">+ Adicionar formação</button>
+        <div class="nav-btns">
+          <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextStep()">Avançar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 3: Histórico Profissional -->
+    <div class="step" id="step-3">
+      <div class="card">
+        <h2>Histórico Profissional</h2>
+        <p>Adicione suas experiências de trabalho</p>
+        <div id="experiencias-list"></div>
+        <button class="add-btn" onclick="addExperiencia()">+ Adicionar experiência</button>
+        <div class="nav-btns">
+          <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextStep()">Avançar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 4: Competências Técnicas -->
+    <div class="step" id="step-4">
+      <div class="card">
+        <h2>Competências Técnicas</h2>
+        <p>Adicione suas habilidades técnicas como tags</p>
+        <div id="tags-competencias" class="tags-container" style="margin-bottom:12px"></div>
+        <div class="tag-input-row">
+          <input type="text" id="input-competencia" placeholder="ex: JavaScript, C#, SQL..." onkeydown="if(event.key==='Enter'){addTag('competencia');event.preventDefault()}" />
+          <button class="btn btn-secondary btn-sm" onclick="addTag('competencia')">+ Add</button>
+        </div>
+        <div class="nav-btns">
+          <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextStep()">Avançar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 5: Objetivo Profissional -->
+    <div class="step" id="step-5">
+      <div class="card">
+        <h2>Objetivo Profissional</h2>
+        <p>Escreva um resumo sobre você e seus objetivos (150–300 palavras)</p>
+        <div class="field">
+          <label>Resumo profissional / objetivo de carreira</label>
+          <textarea id="resumo" rows="8" placeholder="Ex: Desenvolvedora back-end com 3 anos de experiência em C# e .NET, buscando oportunidades em empresas de tecnologia..."></textarea>
+        </div>
+        <div class="nav-btns">
+          <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextStep()">Avançar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 6: Soft Skills -->
+    <div class="step" id="step-6">
+      <div class="card">
+        <h2>Soft Skills</h2>
+        <p>Suas habilidades comportamentais</p>
+        <div id="tags-softskills" class="tags-container" style="margin-bottom:12px"></div>
+        <div class="tag-input-row">
+          <input type="text" id="input-softskill" placeholder="ex: Comunicação, Liderança..." onkeydown="if(event.key==='Enter'){addTag('softskill');event.preventDefault()}" />
+          <button class="btn btn-secondary btn-sm" onclick="addTag('softskill')">+ Add</button>
+        </div>
+        <!-- Sugestões -->
+        <div class="tags-container mt-8" style="opacity:0.7">
+          <span style="font-size:12px;color:var(--gray-500);width:100%;margin-bottom:4px">Sugestões:</span>
+          <span class="tag" onclick="quickAddSoft('Comunicação')">Comunicação</span>
+          <span class="tag" onclick="quickAddSoft('Trabalho em equipe')">Trabalho em equipe</span>
+          <span class="tag" onclick="quickAddSoft('Proatividade')">Proatividade</span>
+          <span class="tag" onclick="quickAddSoft('Adaptabilidade')">Adaptabilidade</span>
+          <span class="tag" onclick="quickAddSoft('Responsabilidade')">Responsabilidade</span>
+          <span class="tag" onclick="quickAddSoft('Pensamento analítico')">Pensamento analítico</span>
+        </div>
+        <div class="nav-btns">
+          <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+          <button class="btn btn-primary" id="btn-salvar" onclick="salvarPerfil()">Salvar Perfil ✓</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="../app.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a>
+  <a href="chat.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar CV</a>
+  <a href="historico.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Histórico</a>
+</nav>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+  const TOTAL_STEPS = 6;
+  let currentStep = 1;
+  let competencias = [];
+  let softSkills = [];
+  let formacoes = [];
+  let experiencias = [];
+
+  // ── Barra de progresso ──
+  function renderStepsBar() {
+    const bar = document.getElementById('steps-bar');
+    bar.innerHTML = Array.from({ length: TOTAL_STEPS }, (_, i) => {
+      const cls = i + 1 < currentStep ? 'done' : i + 1 === currentStep ? 'active' : '';
+      return `<div class="step-dot ${cls}"></div>`;
+    }).join('');
+  }
+
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step-${n}`).classList.add('active');
+    renderStepsBar();
+  }
+
+  function nextStep() { if (currentStep < TOTAL_STEPS) { currentStep++; showStep(currentStep); } }
+  function prevStep() { if (currentStep > 1) { currentStep--; showStep(currentStep); } }
+
+  // ── Tags ──
+  function renderTags(type) {
+    const list = type === 'competencia' ? competencias : softSkills;
+    const containerId = type === 'competencia' ? 'tags-competencias' : 'tags-softskills';
+    document.getElementById(containerId).innerHTML = list.map((t, i) => `
+      <span class="tag active">
+        ${t}
+        <span class="remove" onclick="removeTag('${type}', ${i})">×</span>
+      </span>`).join('');
+  }
+
+  function addTag(type) {
+    const input = document.getElementById(`input-${type === 'competencia' ? 'competencia' : 'softskill'}`);
+    const val = input.value.trim();
+    if (!val) return;
+    const list = type === 'competencia' ? competencias : softSkills;
+    if (!list.includes(val)) list.push(val);
+    input.value = '';
+    renderTags(type);
+  }
+
+  function removeTag(type, idx) {
+    if (type === 'competencia') competencias.splice(idx, 1);
+    else softSkills.splice(idx, 1);
+    renderTags(type);
+  }
+
+  function quickAddSoft(val) {
+    if (!softSkills.includes(val)) { softSkills.push(val); renderTags('softskill'); }
+  }
+
+  // ── Formações ──
+  function addFormacao(data = {}) {
+    formacoes.push(data);
+    renderFormacoes();
+  }
+
+  function removeFormacao(idx) { formacoes.splice(idx, 1); renderFormacoes(); }
+
+  function renderFormacoes() {
+    document.getElementById('formacoes-list').innerHTML = formacoes.map((f, i) => `
+      <div class="form-card">
+        <button class="remove-btn" onclick="removeFormacao(${i})">×</button>
+        <h4>Formação ${i + 1}</h4>
+        <div class="field"><label>Instituição</label><input type="text" value="${f.instituicao||''}" oninput="formacoes[${i}].instituicao=this.value" /></div>
+        <div class="field"><label>Curso</label><input type="text" value="${f.curso||''}" oninput="formacoes[${i}].curso=this.value" /></div>
+        <div class="field"><label>Tipo</label>
+          <select oninput="formacoes[${i}].tipo=this.value">
+            <option value="" ${!f.tipo?'selected':''}>Selecione</option>
+            <option value="graduacao" ${f.tipo==='graduacao'?'selected':''}>Graduação</option>
+            <option value="pos-graduacao" ${f.tipo==='pos-graduacao'?'selected':''}>Pós-graduação</option>
+            <option value="tecnico" ${f.tipo==='tecnico'?'selected':''}>Técnico</option>
+            <option value="livre" ${f.tipo==='livre'?'selected':''}>Curso livre</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Início</label><input type="month" value="${f.inicio||''}" oninput="formacoes[${i}].inicio=this.value" /></div>
+          <div class="field"><label>Conclusão</label><input type="month" value="${f.conclusao||''}" oninput="formacoes[${i}].conclusao=this.value" /></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Experiências ──
+  function addExperiencia(data = {}) {
+    experiencias.push({ empregoAtual: false, ...data });
+    renderExperiencias();
+  }
+
+  function removeExperiencia(idx) { experiencias.splice(idx, 1); renderExperiencias(); }
+
+  function toggleAtual(idx, checked) {
+    experiencias[idx].empregoAtual = checked;
+    document.getElementById(`datafim-${idx}`).style.display = checked ? 'none' : 'block';
+  }
+
+  function renderExperiencias() {
+    document.getElementById('experiencias-list').innerHTML = experiencias.map((e, i) => `
+      <div class="exp-card">
+        <button class="remove-btn" onclick="removeExperiencia(${i})">×</button>
+        <h4>Experiência ${i + 1}</h4>
+        <div class="field"><label>Empresa</label><input type="text" value="${e.empresa||''}" oninput="experiencias[${i}].empresa=this.value" /></div>
+        <div class="field"><label>Cargo</label><input type="text" value="${e.cargo||''}" oninput="experiencias[${i}].cargo=this.value" /></div>
+        <div class="field-row">
+          <div class="field"><label>Início</label><input type="month" value="${e.inicio||''}" oninput="experiencias[${i}].inicio=this.value" /></div>
+          <div class="field" id="datafim-${i}" ${e.empregoAtual?'style="display:none"':''}>
+            <label>Fim</label><input type="month" value="${e.fim||''}" oninput="experiencias[${i}].fim=this.value" />
+          </div>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="atual-${i}" ${e.empregoAtual?'checked':''} onchange="toggleAtual(${i}, this.checked)" />
+          <label for="atual-${i}" style="font-size:13px;color:var(--gray-700)">Emprego atual</label>
+        </div>
+        <div class="field"><label>Principais atividades</label><textarea rows="3" oninput="experiencias[${i}].atividades=this.value">${e.atividades||''}</textarea></div>
+        <div class="field"><label>Tecnologias utilizadas</label><input type="text" placeholder="ex: React, Node.js, SQL" value="${e.tecnologias||''}" oninput="experiencias[${i}].tecnologias=this.value" /></div>
+        <div class="field"><label>Resultados / conquistas <span style="opacity:0.6">(opcional)</span></label><textarea rows="2" oninput="experiencias[${i}].resultados=this.value">${e.resultados||''}</textarea></div>
+      </div>`).join('');
+  }
+
+  // ── Carregar perfil existente ──
+  async function carregarPerfil() {
+    try {
+      const perfil = await api.getPerfil();
+      if (!perfil) return;
+
+      document.getElementById('nome').value = perfil.nomeCompleto || '';
+      document.getElementById('cidade').value = perfil.cidade || '';
+      document.getElementById('estado').value = perfil.estado || '';
+      document.getElementById('email').value = perfil.email || '';
+      document.getElementById('telefone').value = perfil.telefone || '';
+      document.getElementById('linkedin').value = perfil.linkedin || '';
+      document.getElementById('portfolio').value = perfil.portfolio || '';
+      document.getElementById('resumo').value = perfil.resumoProfissional || '';
+
+      competencias = perfil.competencias || [];
+      softSkills = perfil.softSkills || [];
+      renderTags('competencia');
+      renderTags('softskill');
+
+      formacoes = (perfil.formacoes || []).map(f => ({
+        instituicao: f.instituicao, curso: f.curso, tipo: f.tipo,
+        inicio: f.dataInicio?.slice(0, 7), conclusao: f.dataConclusao?.slice(0, 7)
+      }));
+      renderFormacoes();
+
+      experiencias = (perfil.experiencias || []).map(e => ({
+        empresa: e.empresa, cargo: e.cargo, empregoAtual: e.empregoAtual,
+        inicio: e.dataInicio?.slice(0, 7), fim: e.dataFim?.slice(0, 7),
+        atividades: e.principaisAtividades,
+        tecnologias: e.tecnologiasUtilizadas?.join(', '),
+        resultados: e.resultadosConquistas
+      }));
+      renderExperiencias();
+    } catch (err) { /* perfil novo */ }
+  }
+
+  // ── Salvar ──
+  async function salvarPerfil() {
+    const btn = document.getElementById('btn-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+    try {
+      const dto = {
+        nomeCompleto: document.getElementById('nome').value,
+        cidade: document.getElementById('cidade').value,
+        estado: document.getElementById('estado').value,
+        email: document.getElementById('email').value,
+        telefone: document.getElementById('telefone').value,
+        linkedin: document.getElementById('linkedin').value || null,
+        portfolio: document.getElementById('portfolio').value || null,
+        resumoProfissional: document.getElementById('resumo').value || null,
+        competencias,
+        softSkills,
+        formacoes: formacoes.map(f => ({
+          instituicao: f.instituicao || '', curso: f.curso || '', tipo: f.tipo || 'livre',
+          dataInicio: f.inicio ? new Date(f.inicio + '-01').toISOString() : new Date().toISOString(),
+          dataConclusao: f.conclusao ? new Date(f.conclusao + '-01').toISOString() : null
+        })),
+        experiencias: experiencias.map(e => ({
+          empresa: e.empresa || '', cargo: e.cargo || '', empregoAtual: e.empregoAtual || false,
+          dataInicio: e.inicio ? new Date(e.inicio + '-01').toISOString() : new Date().toISOString(),
+          dataFim: (!e.empregoAtual && e.fim) ? new Date(e.fim + '-01').toISOString() : null,
+          principaisAtividades: e.atividades || '',
+          tecnologiasUtilizadas: (e.tecnologias || '').split(',').map(t => t.trim()).filter(Boolean),
+          resultadosConquistas: e.resultados || null
+        }))
+      };
+      await api.salvarPerfil(dto);
+      showToast('Perfil salvo com sucesso! ✓');
+      setTimeout(() => window.location.href = '../app.html', 1500);
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false; btn.textContent = 'Salvar Perfil ✓';
+    }
+  }
+
+  renderStepsBar();
+  renderFormacoes();
+  renderExperiencias();
+  renderTags('competencia');
+  renderTags('softskill');
+  carregarPerfil();
+</script>
+</body>
+</html>

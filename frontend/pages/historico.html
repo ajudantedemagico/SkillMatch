@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch — Histórico</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <div class="app-header">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="logo">Skill<span>Match</span></div>
+  </div>
+
+  <div style="padding: 16px;" class="pb-nav">
+    <h1 style="font-size:20px;font-weight:700;margin-bottom:6px">Histórico de CVs</h1>
+    <p style="font-size:13px;opacity:0.7;margin-bottom:20px">Currículos gerados e salvos por você.</p>
+
+    <div id="lista-cvs">
+      <div style="text-align:center;padding:40px 0;opacity:0.6">
+        <div class="spinner"></div>
+        <p style="margin-top:12px">Carregando...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de detalhes -->
+<div id="modal-cv" style="display:none;position:fixed;inset:0;background:rgba(20,0,50,0.95);z-index:200;overflow-y:auto">
+  <div style="max-width:430px;margin:0 auto;padding:20px 16px 100px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button onclick="closeModal()" style="background:none;border:none;color:white;font-size:22px;cursor:pointer">←</button>
+      <h2 id="modal-titulo" style="font-size:18px;font-weight:700;flex:1"></h2>
+    </div>
+    <p id="modal-meta" style="font-size:12px;opacity:0.6;margin-bottom:20px"></p>
+
+    <div class="cv-section" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;margin-bottom:12px">
+      <div style="padding:12px 16px;background:rgba(255,255,255,0.1);border-radius:12px 12px 0 0;font-size:14px;font-weight:700">📝 Resumo Profissional</div>
+      <div id="modal-resumo" style="padding:14px 16px;font-size:14px;line-height:1.6;opacity:0.9"></div>
+    </div>
+
+    <div class="cv-section" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;margin-bottom:12px">
+      <div style="padding:12px 16px;background:rgba(255,255,255,0.1);border-radius:12px 12px 0 0;font-size:14px;font-weight:700">💼 Experiência Profissional</div>
+      <div id="modal-exp" style="padding:14px 16px;font-size:14px"></div>
+    </div>
+
+    <div class="cv-section" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;margin-bottom:12px">
+      <div style="padding:12px 16px;background:rgba(255,255,255,0.1);border-radius:12px 12px 0 0;font-size:14px;font-weight:700">🎓 Formação Acadêmica</div>
+      <div id="modal-form" style="padding:14px 16px;font-size:14px"></div>
+    </div>
+
+    <div class="cv-section" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;margin-bottom:12px">
+      <div style="padding:12px 16px;background:rgba(255,255,255,0.1);border-radius:12px 12px 0 0;font-size:14px;font-weight:700">⚙️ Competências</div>
+      <div id="modal-comp" style="padding:14px 16px"></div>
+    </div>
+
+    <div class="cv-section" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:12px;margin-bottom:20px">
+      <div style="padding:12px 16px;background:rgba(255,255,255,0.1);border-radius:12px 12px 0 0;font-size:14px;font-weight:700">🤝 Soft Skills</div>
+      <div id="modal-soft" style="padding:14px 16px"></div>
+    </div>
+
+    <p style="font-size:12px;opacity:0.5;margin-bottom:16px">ℹ️ Download em PDF será implementado na Sprint 6.</p>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="../app.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a>
+  <a href="chat.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar CV</a>
+  <a href="historico.html" class="active">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Histórico</a>
+</nav>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+
+  async function carregarHistorico() {
+    try {
+      const lista = await api.listarCVs();
+      const container = document.getElementById('lista-cvs');
+
+      if (!lista || lista.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:40px 0;opacity:0.6">
+            <p style="font-size:32px;margin-bottom:12px">📄</p>
+            <p>Nenhum CV salvo ainda.</p>
+            <a href="chat.html" class="btn btn-primary" style="margin-top:16px;text-decoration:none;display:inline-block;width:auto;padding:12px 24px">Gerar meu primeiro CV</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = lista.map(cv => `
+        <div class="history-card" onclick="abrirCV(${cv.id})">
+          <div class="title">${cv.titulo}</div>
+          <div class="meta">Gerado em ${new Date(cv.geradoEm).toLocaleDateString('pt-BR')} · Perfil v${cv.versaoPerfilAncora}</div>
+          <div class="meta" style="margin-top:4px;opacity:0.6;font-size:11px">${cv.descricaoVaga.slice(0, 80)}...</div>
+          ${cv.editadoManualmente ? '<span class="badge-edited">✏️ Editado manualmente</span>' : ''}
+        </div>`).join('');
+    } catch (err) {
+      document.getElementById('lista-cvs').innerHTML = `<p style="opacity:0.6;text-align:center">Erro ao carregar histórico.</p>`;
+    }
+  }
+
+  async function abrirCV(id) {
+    showLoading('Carregando CV...');
+    try {
+      const cv = await api.getCV(id);
+      hideLoading();
+
+      document.getElementById('modal-titulo').textContent = cv.titulo;
+      document.getElementById('modal-meta').textContent =
+        `Gerado em ${new Date(cv.geradoEm).toLocaleDateString('pt-BR')} · Perfil v${cv.versaoPerfilAncora}${cv.editadoManualmente ? ' · Editado manualmente' : ''}`;
+
+      document.getElementById('modal-resumo').textContent = cv.secoes.resumoProfissional;
+
+      document.getElementById('modal-exp').innerHTML = (cv.secoes.experienciaProfissional || []).map(e => `
+        <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1)">
+          <strong>${e.empresa}</strong> — ${e.cargo}<br/>
+          <span style="font-size:12px;opacity:0.7">${e.periodo}</span>
+          <ul style="margin:6px 0 0 16px;font-size:13px;opacity:0.85">
+            ${(e.atividades || []).map(a => `<li>${a}</li>`).join('')}
+          </ul>
+          ${e.tecnologias?.length ? `<div style="margin-top:6px;font-size:12px;opacity:0.7">${e.tecnologias.join(' · ')}</div>` : ''}
+        </div>`).join('');
+
+      document.getElementById('modal-form').innerHTML = (cv.secoes.formacaoAcademica || []).map(f => `
+        <div style="margin-bottom:8px">
+          <strong>${f.curso}</strong> — ${f.instituicao}<br/>
+          <span style="font-size:12px;opacity:0.7">${f.tipo} · ${f.periodo}</span>
+        </div>`).join('');
+
+      document.getElementById('modal-comp').innerHTML =
+        `<div class="tags-container">${(cv.secoes.competenciasTecnicas || []).map(c =>
+          `<span class="tag active" style="color:white;border-color:rgba(255,255,255,0.3)">${c}</span>`).join('')}</div>`;
+
+      document.getElementById('modal-soft').innerHTML =
+        `<div class="tags-container">${(cv.secoes.softSkills || []).map(s =>
+          `<span class="tag active" style="color:white;border-color:rgba(255,255,255,0.3)">${s}</span>`).join('')}</div>`;
+
+      document.getElementById('modal-cv').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    } catch (err) {
+      hideLoading();
+      showToast('Erro ao abrir CV.', 'error');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modal-cv').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  carregarHistorico();
+</script>
+</body>
+</html>

@@ -1,6 +1,49 @@
-@SkillMatch.Api_HostAddress = http://localhost:5255
+@SkillMatch.Api_HostAddress = http://localhost:5000
+@ContentType = application/json
 
-GET {{SkillMatch.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Register a new user
+POST {{SkillMatch.Api_HostAddress}}/api/auth/register
+Content-Type: {{ContentType}}
 
-###
+{
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "senha": "password123"
+}
+
+### Login with email and password
+POST {{SkillMatch.Api_HostAddress}}/api/auth/login
+Content-Type: {{ContentType}}
+
+{
+  "email": "joao@example.com",
+  "senha": "password123"
+}
+
+### Request password recovery code
+POST {{SkillMatch.Api_HostAddress}}/api/auth/password-recovery/request-code
+Content-Type: {{ContentType}}
+
+{
+  "email": "joao@example.com"
+}
+
+### Verify password recovery code
+POST {{SkillMatch.Api_HostAddress}}/api/auth/password-recovery/verify-code
+Content-Type: {{ContentType}}
+
+{
+  "email": "joao@example.com",
+  "codigoVerificacao": "1234"
+}
+
+### Reset password
+POST {{SkillMatch.Api_HostAddress}}/api/auth/password-recovery/reset
+Content-Type: {{ContentType}}
+
+{
+  "email": "joao@example.com",
+  "codigoVerificacao": "1234",
+  "novaSenha": "newpassword123"
+}
+

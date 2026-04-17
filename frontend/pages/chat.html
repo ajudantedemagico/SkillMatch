@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch — Gerar CV</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">  
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    .consent-box {
+      background: rgba(255,255,255,0.1); border-radius: var(--radius-sm);
+      padding: 14px; margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .consent-box p { font-size: 13px; opacity: 0.85; line-height: 1.5; }
+    .consent-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; }
+    .consent-row input[type=checkbox] { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+    .consent-row label { font-size: 13px; line-height: 1.4; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="app-header">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="logo">Skill<span>Match</span></div>
+  </div>
+
+  <div style="padding: 16px; flex: 1;" class="pb-nav">
+    <h1 style="font-size:20px;font-weight:700;margin-bottom:6px">Gerar CV com IA ✨</h1>
+    <p style="font-size:13px;opacity:0.75;margin-bottom:20px">Cole a descrição da vaga abaixo. Nossa IA vai adaptar seu currículo usando apenas seu Perfil Âncora.</p>
+
+    <!-- Consentimento (RN-14) -->
+    <div class="consent-box">
+      <p>⚠️ <strong>Aviso:</strong> Ao gerar o currículo, os dados do seu Perfil Âncora serão enviados para a API da OpenAI para processamento.</p>
+      <div class="consent-row">
+        <input type="checkbox" id="consentimento" />
+        <label for="consentimento">Estou ciente e concordo com o uso dos meus dados pela IA para gerar o currículo.</label>
+      </div>
+    </div>
+
+    <!-- Descrição da vaga -->
+    <div class="field">
+      <label>Descrição da vaga *</label>
+      <textarea id="descricao-vaga" rows="12" placeholder="Cole aqui a descrição completa da vaga...
+Ex:
+Buscamos Desenvolvedor(a) Back-end C# para integrar nosso time. Requisitos: .NET 6+, Entity Framework, REST APIs, SQL Server, conhecimento em Docker é diferencial..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" id="btn-gerar" onclick="gerarCV()">
+      ✨ Gerar Currículo
+    </button>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="../app.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a>
+  <a href="chat.html" class="active">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar CV</a>
+  <a href="historico.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Histórico</a>
+</nav>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+
+  async function gerarCV() {
+    const descricao = document.getElementById('descricao-vaga').value.trim();
+    const consentimento = document.getElementById('consentimento').checked;
+
+    if (!descricao) { showToast('Cole a descrição da vaga.', 'error'); return; }
+    if (!consentimento) { showToast('Confirme o consentimento de uso de IA.', 'error'); return; }
+
+    const btn = document.getElementById('btn-gerar');
+    btn.disabled = true;
+    showLoading('Gerando seu currículo com IA...\nIsso pode levar alguns segundos.');
+
+    try {
+      const secoes = await api.gerarCV(descricao, consentimento);
+      // Salva temporariamente para a tela de edição
+      sessionStorage.setItem('cv_secoes', JSON.stringify(secoes));
+      sessionStorage.setItem('cv_vaga', descricao);
+      hideLoading();
+      window.location.href = 'cv-editar.html';
+    } catch (err) {
+      hideLoading();
+      showToast(err.message || 'Erro ao gerar currículo. Tente novamente.', 'error');
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

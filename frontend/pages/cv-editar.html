@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMatch — Revisar CV</title>
+  <link rel="icon" href="/img/iconSkillMatch.png" type="image/png">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    .cv-section { background: rgba(255,255,255,0.08); border-radius: var(--radius-md); margin-bottom: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+    .cv-section-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255,255,255,0.1); }
+    .cv-section-header h3 { font-size: 14px; font-weight: 700; }
+    .cv-section-body { padding: 14px 16px; }
+    .cv-section-body textarea { background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-sm); }
+    .cv-section-body textarea:focus { border-color: var(--purple-light); }
+    .edited-badge { font-size: 11px; background: var(--purple-light); color: var(--purple-dark); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+    .exp-item { background: rgba(255,255,255,0.08); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; }
+    .exp-item textarea { background: rgba(255,255,255,0.08); color: var(--white); border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius-sm); width: 100%; padding: 8px; font-size: 13px; resize: vertical; }
+    .exp-item label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; display: block; margin: 6px 0 3px; }
+    .title-input { width: 100%; background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.3); border-radius: var(--radius-sm); padding: 12px 14px; color: var(--white); font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .title-input::placeholder { opacity: 0.5; }
+    .save-bar { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 398px; display: flex; gap: 10px; z-index: 50; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="app-header">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="logo">Skill<span>Match</span></div>
+  </div>
+
+  <div style="padding: 16px 16px 140px;">
+    <h1 style="font-size:18px;font-weight:700;margin-bottom:4px">Revise e edite seu CV</h1>
+    <p style="font-size:13px;opacity:0.7;margin-bottom:16px">Cada seção pode ser editada individualmente. Edições serão marcadas.</p>
+
+    <input type="text" class="title-input" id="cv-titulo" placeholder="Nome do CV (ex: CV Dev Backend - Tech Corp)" />
+
+    <!-- RESUMO PROFISSIONAL -->
+    <div class="cv-section" id="sec-resumo">
+      <div class="cv-section-header">
+        <h3>📝 Resumo Profissional</h3>
+        <span class="edited-badge" id="badge-resumo" style="display:none">Editado</span>
+      </div>
+      <div class="cv-section-body">
+        <textarea id="resumo-prof" rows="5" oninput="markEdited('resumo')" style="width:100%"></textarea>
+      </div>
+    </div>
+
+    <!-- EXPERIÊNCIA PROFISSIONAL -->
+    <div class="cv-section" id="sec-exp">
+      <div class="cv-section-header">
+        <h3>💼 Experiência Profissional</h3>
+        <span class="edited-badge" id="badge-exp" style="display:none">Editado</span>
+      </div>
+      <div class="cv-section-body" id="exp-list"></div>
+    </div>
+
+    <!-- FORMAÇÃO ACADÊMICA -->
+    <div class="cv-section" id="sec-form">
+      <div class="cv-section-header">
+        <h3>🎓 Formação Acadêmica</h3>
+        <span class="edited-badge" id="badge-form" style="display:none">Editado</span>
+      </div>
+      <div class="cv-section-body" id="form-list"></div>
+    </div>
+
+    <!-- COMPETÊNCIAS TÉCNICAS -->
+    <div class="cv-section" id="sec-comp">
+      <div class="cv-section-header">
+        <h3>⚙️ Competências Técnicas</h3>
+        <span class="edited-badge" id="badge-comp" style="display:none">Editado</span>
+      </div>
+      <div class="cv-section-body">
+        <div id="tags-comp" class="tags-container" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="add-comp-input" placeholder="Adicionar..." style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white" onkeydown="if(event.key==='Enter'){addCompetencia();event.preventDefault()}" />
+          <button class="btn btn-secondary btn-sm" onclick="addCompetencia()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOFT SKILLS -->
+    <div class="cv-section" id="sec-soft">
+      <div class="cv-section-header">
+        <h3>🤝 Soft Skills</h3>
+        <span class="edited-badge" id="badge-soft" style="display:none">Editado</span>
+      </div>
+      <div class="cv-section-body">
+        <div id="tags-soft" class="tags-container" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="add-soft-input" placeholder="Adicionar..." style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white" onkeydown="if(event.key==='Enter'){addSoftSkill();event.preventDefault()}" />
+          <button class="btn btn-secondary btn-sm" onclick="addSoftSkill()">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Barra de salvar fixa -->
+<div class="save-bar">
+  <button class="btn btn-ghost" onclick="history.back()" style="flex:0.6">Cancelar</button>
+  <button class="btn btn-primary" id="btn-salvar" onclick="salvarCV()" style="flex:1.4">💾 Salvar no histórico</button>
+</div>
+
+<nav class="bottom-nav">
+  <a href="../app.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a>
+  <a href="chat.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar CV</a>
+  <a href="historico.html">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Histórico</a>
+</nav>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+
+  const secoes = JSON.parse(sessionStorage.getItem('cv_secoes') || '{}');
+  const descricaoVaga = sessionStorage.getItem('cv_vaga') || '';
+
+  if (!secoes.resumoProfissional) {
+    showToast('Nenhum CV gerado. Volte e tente novamente.', 'error');
+    setTimeout(() => window.location.href = 'chat.html', 2000);
+  }
+
+  // Flags de edição manual (RN-08)
+  const flags = { resumo: false, exp: false, form: false, comp: false, soft: false };
+
+  function markEdited(sec) {
+    flags[sec] = true;
+    document.getElementById(`badge-${sec}`).style.display = 'inline';
+  }
+
+  // ── Competências ──
+  let competencias = [...(secoes.competenciasTecnicas || [])];
+  function renderCompetencias() {
+    document.getElementById('tags-comp').innerHTML = competencias.map((c, i) => `
+      <span class="tag active" style="color:white;border-color:rgba(255,255,255,0.4)">
+        ${c} <span style="cursor:pointer;margin-left:4px" onclick="removeComp(${i})">×</span>
+      </span>`).join('');
+  }
+  function addCompetencia() {
+    const v = document.getElementById('add-comp-input').value.trim();
+    if (v && !competencias.includes(v)) { competencias.push(v); markEdited('comp'); renderCompetencias(); }
+    document.getElementById('add-comp-input').value = '';
+  }
+  function removeComp(i) { competencias.splice(i, 1); markEdited('comp'); renderCompetencias(); }
+
+  // ── Soft Skills ──
+  let softSkills = [...(secoes.softSkills || [])];
+  function renderSoftSkills() {
+    document.getElementById('tags-soft').innerHTML = softSkills.map((s, i) => `
+      <span class="tag active" style="color:white;border-color:rgba(255,255,255,0.4)">
+        ${s} <span style="cursor:pointer;margin-left:4px" onclick="removeSoft(${i})">×</span>
+      </span>`).join('');
+  }
+  function addSoftSkill() {
+    const v = document.getElementById('add-soft-input').value.trim();
+    if (v && !softSkills.includes(v)) { softSkills.push(v); markEdited('soft'); renderSoftSkills(); }
+    document.getElementById('add-soft-input').value = '';
+  }
+  function removeSoft(i) { softSkills.splice(i, 1); markEdited('soft'); renderSoftSkills(); }
+
+  // ── Experiências editáveis ──
+  let experiencias = [...(secoes.experienciaProfissional || [])];
+  function renderExperiencias() {
+    document.getElementById('exp-list').innerHTML = experiencias.map((e, i) => `
+      <div class="exp-item">
+        <strong style="font-size:14px">${e.empresa}</strong> — ${e.cargo}
+        <span style="font-size:12px;opacity:0.7;margin-left:8px">${e.periodo}</span>
+        <label>Atividades</label>
+        <textarea rows="3" oninput="experiencias[${i}].atividades=this.value.split('\\n').filter(Boolean);markEdited('exp')">${(e.atividades||[]).join('\n')}</textarea>
+        ${e.resultados ? `<label>Resultados</label><textarea rows="2" oninput="experiencias[${i}].resultados=this.value;markEdited('exp')">${e.resultados}</textarea>` : ''}
+      </div>`).join('');
+  }
+
+  // ── Formações ──
+  function renderFormacoes() {
+    document.getElementById('form-list').innerHTML = (secoes.formacaoAcademica || []).map(f => `
+      <div class="exp-item">
+        <strong style="font-size:14px">${f.curso}</strong><br/>
+        <span style="font-size:12px;opacity:0.8">${f.instituicao} · ${f.tipo} · ${f.periodo}</span>
+      </div>`).join('');
+  }
+
+  // ── Init ──
+  document.getElementById('resumo-prof').value = secoes.resumoProfissional || '';
+  renderExperiencias();
+  renderFormacoes();
+  renderCompetencias();
+  renderSoftSkills();
+
+  // ── Salvar (RN-09: confirmação explícita) ──
+  async function salvarCV() {
+    const titulo = document.getElementById('cv-titulo').value.trim();
+    if (!titulo) { showToast('Dê um nome para o CV antes de salvar.', 'error'); return; }
+
+    const btn = document.getElementById('btn-salvar');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+    try {
+      await api.salvarCV({
+        titulo,
+        descricaoVaga,
+        secoes: {
+          resumoProfissional: document.getElementById('resumo-prof').value,
+          experienciaProfissional: experiencias,
+          formacaoAcademica: secoes.formacaoAcademica || [],
+          competenciasTecnicas: competencias,
+          softSkills
+        },
+        resumoProfissionalEditado: flags.resumo,
+        experienciaEditada: flags.exp,
+        formacaoEditada: flags.form,
+        competenciasEditadas: flags.comp,
+        softSkillsEditadas: flags.soft
+      });
+      sessionStorage.removeItem('cv_secoes');
+      sessionStorage.removeItem('cv_vaga');
+      showToast('CV salvo no histórico! ✓');
+      setTimeout(() => window.location.href = 'historico.html', 1500);
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false; btn.textContent = '💾 Salvar no histórico';
+    }
+  }
+</script>
+</body>
+</html>

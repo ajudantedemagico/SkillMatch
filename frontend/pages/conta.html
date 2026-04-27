@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Conta — SkillMatch</title>
+  <link rel="icon" href="/frontend/img/iconSkillMatch.png" type="image/png">
+  <link rel="stylesheet" href="/frontend/css/style.css" />
+  <style>
+    .profile-section {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .profile-section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+    .profile-field {
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-field label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 6px;
+    }
+    .profile-field .value {
+      font-size: 16px;
+      color: #ffffff;
+      word-break: break-all;
+    }
+    .profile-field .value.empty {
+      color: rgba(255,255,255,0.4);
+      font-style: italic;
+    }
+    .tabs-cuenta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .tab-btn-cuenta {
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn-cuenta:hover { color: #ffffff; }
+    .tab-btn-cuenta.active {
+      color: #B066F5;
+      border-bottom-color: #B066F5;
+    }
+    .tab-content-cuenta { display: none; }
+    .tab-content-cuenta.active { display: block; }
+    .btn-danger {
+      background: #E74C3C;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #C0392B;
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: linear-gradient(160deg, #2D0060 0%, #6B00D7 100%);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-content h2 {
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+    .modal-content p {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .modal-actions button {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- Header -->
+  <div class="app-header">
+    <a href="../app.html" class="btn btn-ghost btn-sm" style="width:auto;padding:6px 12px">← Voltar</a>
+    <h1 style="flex:1;text-align:center;margin:0">Minha Conta</h1>
+    <div style="width:auto"></div>
+  </div>
+
+  <!-- Content -->
+  <div style="padding: 0 16px 80px;">
+    <!-- Avatar & Nome -->
+    <div style="text-align:center;margin-bottom:32px">
+      <div class="avatar" id="avatar-initials" style="margin:0 auto 16px;width:80px;height:80px;font-size:32px">?</div>
+      <div class="name" id="user-name" style="font-size:20px;margin-bottom:4px">Carregando...</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:14px" id="user-email">email@example.com</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-cuenta">
+      <button class="tab-btn-cuenta active" onclick="switchTab('perfil')">Perfil</button>
+      <button class="tab-btn-cuenta" onclick="switchTab('senha')">Alterar Senha</button>
+      <button class="tab-btn-cuenta" onclick="switchTab('perigos')">Zona Perigosa</button>
+    </div>
+
+    <!-- Tab: Perfil -->
+    <div id="tab-perfil" class="tab-content-cuenta active">
+      <div id="loading-perfil" style="text-align:center;padding:40px;color:rgba(255,255,255,0.6)">
+        Carregando perfil...
+      </div>
+      <div id="perfil-content" style="display:none">
+        <!-- Informações Pessoais -->
+        <div class="profile-section">
+          <h3>📋 Informações Pessoais</h3>
+          <div class="profile-grid">
+            <div class="profile-field">
+              <label>Nome Completo</label>
+              <div class="value" id="pf-nome">-</div>
+            </div>
+            <div class="profile-field">
+              <label>Telefone</label>
+              <div class="value" id="pf-telefone">-</div>
+            </div>
+            <div class="profile-field">
+              <label>Cidade</label>
+              <div class="value" id="pf-cidade">-</div>
+            </div>
+            <div class="profile-field">
+              <label>Estado</label>
+              <div class="value" id="pf-estado">-</div>
+            </div>
+            <div class="profile-field">
+              <label>E-mail</label>
+              <div class="value" id="pf-email">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Links Profissionais -->
+        <div class="profile-section">
+          <h3>🔗 Links Profissionais</h3>
+          <div class="profile-grid">
+            <div class="profile-field">
+              <label>LinkedIn</label>
+              <div class="value" id="pf-linkedin">
+                <a href="#" id="link-linkedin" style="color:#B066F5;text-decoration:none" target="_blank">-</a>
+              </div>
+            </div>
+            <div class="profile-field">
+              <label>Portfólio</label>
+              <div class="value" id="pf-portfolio">
+                <a href="#" id="link-portfolio" style="color:#B066F5;text-decoration:none" target="_blank">-</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competências -->
+        <div class="profile-section">
+          <h3>⚙️ Competências Técnicas</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="pf-competencias">
+            <span style="color:rgba(255,255,255,0.6)">Nenhuma competência registrada</span>
+          </div>
+        </div>
+
+        <!-- Soft Skills -->
+        <div class="profile-section">
+          <h3>💡 Soft Skills</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="pf-softskills">
+            <span style="color:rgba(255,255,255,0.6)">Nenhuma soft skill registrada</span>
+          </div>
+        </div>
+
+        <!-- Educação -->
+        <div class="profile-section">
+          <h3>🎓 Educação</h3>
+          <div id="pf-formacoes" style="display:flex;flex-direction:column;gap:16px">
+            <span style="color:rgba(255,255,255,0.6)">Nenhuma formação registrada</span>
+          </div>
+        </div>
+
+        <!-- Experiência -->
+        <div class="profile-section">
+          <h3>💼 Experiência Profissional</h3>
+          <div id="pf-experiencias" style="display:flex;flex-direction:column;gap:16px">
+            <span style="color:rgba(255,255,255,0.6)">Nenhuma experiência registrada</span>
+          </div>
+        </div>
+
+        <button onclick="location.href='perfil.html'" class="btn btn-primary" style="width:100%;margin-bottom:20px">✏️ Editar Perfil</button>
+      </div>
+    </div>
+
+    <!-- Tab: Alterar Senha -->
+    <div id="tab-senha" class="tab-content-cuenta">
+      <div class="profile-section">
+        <h3>🔐 Alterar Senha</h3>
+        <form id="form-senha" style="display:flex;flex-direction:column;gap:16px">
+          <div class="field">
+            <label>Senha Atual</label>
+            <input type="password" id="senha-atual" required placeholder="Digite sua senha atual" />
+          </div>
+          <div class="field">
+            <label>Nova Senha</label>
+            <input type="password" id="nova-senha" required placeholder="Mínimo 6 caracteres" minlength="6" />
+          </div>
+          <div class="field">
+            <label>Confirmar Nova Senha</label>
+            <input type="password" id="confirma-senha" required placeholder="Repita a nova senha" />
+          </div>
+          <button type="submit" class="btn btn-primary">Alterar Senha</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tab: Zona Perigosa -->
+    <div id="tab-perigos" class="tab-content-cuenta">
+      <div class="profile-section" style="border-color:rgba(231,76,60,0.2)">
+        <h3 style="color:#E74C3C">⚠️ Zona Perigosa</h3>
+        <p style="color:rgba(255,255,255,0.7);margin-bottom:16px;font-size:14px">
+          Estas ações são irreversíveis. Por favor, tenha cuidado.
+        </p>
+        <button type="button" onclick="showDeleteConfirm()" class="btn btn-danger" style="width:100%">
+          🗑️ Deletar Minha Conta Permanentemente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Deleção -->
+<div id="modal-delete" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Deletar Conta?</h2>
+    <p>Esta ação é <strong>irreversível</strong>. Todos os seus dados, currículos e histórico serão deletados permanentemente.</p>
+    <form id="form-delete" style="display:flex;flex-direction:column;gap:16px">
+      <div class="field">
+        <label>Digite sua senha para confirmar:</label>
+        <input type="password" id="delete-senha" required placeholder="Sua senha" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" onclick="hideDeleteConfirm()" class="btn btn-ghost">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Deletar Conta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+  requireAuth();
+
+  const user = api.getUser();
+  if (user) {
+    document.getElementById('user-name').textContent = user.nome;
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('avatar-initials').textContent = 
+      user.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  // Carregar perfil
+  async function loadPerfil() {
+    try {
+      const perfil = await api.getPerfil();
+      displayPerfil(perfil);
+    } catch (err) {
+      document.getElementById('loading-perfil').innerHTML = 
+        '<p style="color:#E74C3C">Erro ao carregar perfil: ' + err.message + '</p>';
+    }
+  }
+
+  function displayPerfil(p) {
+    document.getElementById('loading-perfil').style.display = 'none';
+    document.getElementById('perfil-content').style.display = 'block';
+
+    // Básico
+    document.getElementById('pf-nome').textContent = p.nome || '-';
+    document.getElementById('pf-telefone').textContent = p.telefone || '-';
+    document.getElementById('pf-cidade').textContent = p.cidade || '-';
+    document.getElementById('pf-estado').textContent = p.estado || '-';
+    document.getElementById('pf-email').textContent = p.email || '-';
+
+    // Links
+    if (p.linkedin) {
+      document.getElementById('link-linkedin').href = p.linkedin;
+      document.getElementById('link-linkedin').textContent = 'Abrir perfil';
+    } else {
+      document.getElementById('pf-linkedin').innerHTML = '<span style="color:rgba(255,255,255,0.4)">-</span>';
+    }
+
+    if (p.portfolio) {
+      document.getElementById('link-portfolio').href = p.portfolio;
+      document.getElementById('link-portfolio').textContent = 'Abrir portfólio';
+    } else {
+      document.getElementById('pf-portfolio').innerHTML = '<span style="color:rgba(255,255,255,0.4)">-</span>';
+    }
+
+    // Competências
+    if (p.competenciasTecnicas && p.competenciasTecnicas.length > 0) {
+      document.getElementById('pf-competencias').innerHTML = p.competenciasTecnicas
+        .map(c => `<span class="badge">${c}</span>`).join('');
+    }
+
+    // Soft Skills
+    if (p.softSkills && p.softSkills.length > 0) {
+      document.getElementById('pf-softskills').innerHTML = p.softSkills
+        .map(s => `<span class="badge">${s}</span>`).join('');
+    }
+
+    // Formações
+    if (p.formacoes && p.formacoes.length > 0) {
+      document.getElementById('pf-formacoes').innerHTML = p.formacoes.map(f => `
+        <div style="border-left:2px solid #B066F5;padding-left:16px">
+          <div style="font-weight:600">${f.curso}</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.7)">${f.instituicao} • ${f.tipo}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5)">
+            ${new Date(f.dataInicio).toLocaleDateString('pt-BR')} 
+            ${f.dataConclusao ? '- ' + new Date(f.dataConclusao).toLocaleDateString('pt-BR') : '(Em progresso)'}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Experiências
+    if (p.experiencias && p.experiencias.length > 0) {
+      document.getElementById('pf-experiencias').innerHTML = p.experiencias.map(e => `
+        <div style="border-left:2px solid #B066F5;padding-left:16px">
+          <div style="font-weight:600">${e.cargo}</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.7)">${e.empresa} ${e.empregoAtual ? '(Atual)' : ''}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5)">
+            ${new Date(e.dataInicio).toLocaleDateString('pt-BR')} 
+            ${e.dataFim ? '- ' + new Date(e.dataFim).toLocaleDateString('pt-BR') : '(Atual)'}
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn-cuenta').forEach((b, i) => {
+      b.classList.toggle('active', 
+        (i === 0 && tab === 'perfil') || 
+        (i === 1 && tab === 'senha') || 
+        (i === 2 && tab === 'perigos'));
+    });
+    document.querySelectorAll('.tab-content-cuenta').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    
+    if (tab === 'perfil') loadPerfil();
+  }
+
+  // Alterar senha
+  document.getElementById('form-senha').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const senhaAtual = document.getElementById('senha-atual').value;
+    const novaSenha = document.getElementById('nova-senha').value;
+    const confirma = document.getElementById('confirma-senha').value;
+
+    if (novaSenha !== confirma) {
+      showToast('As senhas não coincidem', 'error');
+      return;
+    }
+
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Alterando...';
+
+    try {
+      await api.changePassword(senhaAtual, novaSenha);
+      showToast('Senha alterada com sucesso!', 'success');
+      e.target.reset();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Alterar Senha';
+    }
+  });
+
+  // Modal de deleção
+  function showDeleteConfirm() {
+    document.getElementById('modal-delete').classList.add('active');
+  }
+
+  function hideDeleteConfirm() {
+    document.getElementById('modal-delete').classList.remove('active');
+    document.getElementById('form-delete').reset();
+  }
+
+  document.getElementById('form-delete').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const senha = document.getElementById('delete-senha').value;
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Deletando...';
+
+    try {
+      await api.deleteAccount(senha);
+      showToast('Conta deletada. Redirecionando...', 'success');
+      setTimeout(() => {
+        api.logout();
+        window.location.href = '../index.html';
+      }, 2000);
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Deletar Conta';
+    }
+  });
+
+  // Carregar perfil ao abrir
+  loadPerfil();
+</script>
+</body>
+</html>

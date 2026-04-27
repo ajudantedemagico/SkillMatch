@@ -10,6 +10,8 @@ public interface IAuthService
     Task<AuthResponseDto?> LoginAsync(LoginDto dto);
     Task<AuthResponseDto?> RegisterAsync(RegisterDto dto);
     Task<Usuario?> GetUsuarioByEmailAsync(string email);
+    Task<bool> ChangePasswordAsync(int usuarioId, string senhaAtual, string novaSenha);
+    Task<bool> DeleteAccountAsync(int usuarioId, string senha);
 }
 
 public class AuthService : IAuthService
@@ -74,6 +76,46 @@ public class AuthService : IAuthService
     public async Task<Usuario?> GetUsuarioByEmailAsync(string email)
     {
         return await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task<bool> ChangePasswordAsync(int usuarioId, string senhaAtual, string novaSenha)
+    {
+        var usuario = await _context.Usuarios.FindAsync(usuarioId);
+        if (usuario == null)
+            return false;
+
+        // Verificar se senha atual está correta
+        if (!BcryptVerifyPassword(senhaAtual, usuario.SenhaHash))
+            return false;
+
+        // Atualizar para nova senha
+        usuario.SenhaHash = BcryptHashPassword(novaSenha);
+        usuario.DataAtualizacao = DateTime.UtcNow;
+
+        _context.Usuarios.Update(usuario);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> DeleteAccountAsync(int usuarioId, string senha)
+    {
+        var usuario = await _context.Usuarios.FindAsync(usuarioId);
+        if (usuario == null)
+            return false;
+
+        // Verificar se senha está correta
+        if (!BcryptVerifyPassword(senha, usuario.SenhaHash))
+            return false;
+
+        // Soft delete ou hard delete - vamos fazer soft delete marcando como inativo
+        usuario.IsAtivo = false;
+        usuario.DataAtualizacao = DateTime.UtcNow;
+
+        _context.Usuarios.Update(usuario);
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 
     private static string BcryptHashPassword(string password)

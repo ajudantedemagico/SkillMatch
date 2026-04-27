@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillMatch.Api.Dtos;
 using SkillMatch.Api.Services;
+using System.Security.Claims;
 
 namespace SkillMatch.Api.Controllers;
 
@@ -100,5 +102,50 @@ public class AuthController : ControllerBase
             success = true,
             message = "Senha alterada com sucesso"
         });
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.SenhaAtual) || string.IsNullOrWhiteSpace(dto.NovaSenha))
+            return BadRequest(new { message = "Senha atual e nova senha são obrigatórias" });
+
+        if (dto.NovaSenha.Length < 6)
+            return BadRequest(new { message = "Nova senha deve ter no mínimo 6 caracteres" });
+
+        var usuarioId = GetUsuarioId();
+        if (usuarioId == 0)
+            return Unauthorized();
+
+        var success = await _authService.ChangePasswordAsync(usuarioId, dto.SenhaAtual, dto.NovaSenha);
+        if (!success)
+            return BadRequest(new { message = "Senha atual inválida ou falha ao alterar senha" });
+
+        return Ok(new { message = "Senha alterada com sucesso" });
+    }
+
+    [Authorize]
+    [HttpDelete("account")]
+    public async Task<ActionResult> DeleteAccount([FromBody] DeleteAccountDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Senha))
+            return BadRequest(new { message = "Senha é obrigatória para deletar a conta" });
+
+        var usuarioId = GetUsuarioId();
+        if (usuarioId == 0)
+            return Unauthorized();
+
+        var success = await _authService.DeleteAccountAsync(usuarioId, dto.Senha);
+        if (!success)
+            return BadRequest(new { message = "Senha inválida ou falha ao deletar conta" });
+
+        return Ok(new { message = "Conta deletada com sucesso" });
+    }
+
+    private int GetUsuarioId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+        return claim != null && int.TryParse(claim.Value, out var id) ? id : 0;
     }
 }

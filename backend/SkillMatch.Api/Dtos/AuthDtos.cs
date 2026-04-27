@@ -43,3 +43,14 @@ public class PasswordRecoveryResponseDto
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
 }
+
+public class ChangePasswordDto
+{
+    public string SenhaAtual { get; set; } = string.Empty;
+    public string NovaSenha { get; set; } = string.Empty;
+}
+
+public class DeleteAccountDto
+{
+    public string Senha { get; set; } = string.Empty;
+}

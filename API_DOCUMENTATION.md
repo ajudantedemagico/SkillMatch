@@ -2,17 +2,24 @@
 
 ## Status da Implementação 
 
-O backend está **totalmente funcional** para login, registro e recuperação de senha.
+✅ **Autenticação**: Login, Registro, Recuperação de Senha, Alterar Senha, Deletar Conta
+✅ **Perfil**: Visualizar, GET/PUT completo com Formações e Experiências
+✅ **Currículo**: Geração com IA (em progresso), Salvar, Listar, Obter detalhes
 
 ## Configuração
 
 - **URL Base**: `http://localhost:5000/api`
 - **Banco de Dados**: SQLite (`skillmatch.db`)
 - **Autenticação**: JWT (7 dias de validade)
+- **Endpoints Protegidos**: Requerem header `Authorization: Bearer <token>`
 
-## Endpoints Implementados
+---
 
-### 1. **Login**
+## 📋 Endpoints Implementados (13 Total)
+
+### **AUTENTICAÇÃO** (7 endpoints)
+
+#### 1. Login
 ```
 POST /auth/login
 Content-Type: application/json
@@ -34,7 +41,7 @@ Content-Type: application/json
 
 ---
 
-### 2. **Registro**
+#### 2. Registro
 ```
 POST /auth/register
 Content-Type: application/json
@@ -55,14 +62,9 @@ Content-Type: application/json
 }
 ```
 
-**Validações**:
-- Senha mínima: 6 caracteres
-- Email: obrigatório e único
-- Nome: obrigatório
-
 ---
 
-### 3. **Solicitar Recuperação de Senha**
+#### 3. Solicitar Recuperação de Senha
 ```
 POST /auth/password-recovery/request-code
 Content-Type: application/json
@@ -80,11 +82,9 @@ Content-Type: application/json
 }
 ```
 
- **IMPORTANTE**: Atualmente, o código é retornado na resposta (apenas para testes). Em produção, será enviado por email.
-
 ---
 
-### 4. **Verificar Código de Recuperação**
+#### 4. Verificar Código de Recuperação
 ```
 POST /auth/password-recovery/verify-code
 Content-Type: application/json
@@ -105,7 +105,7 @@ Content-Type: application/json
 
 ---
 
-### 5. **Resetar Senha**
+#### 5. Resetar Senha
 ```
 POST /auth/password-recovery/reset
 Content-Type: application/json
@@ -127,27 +127,310 @@ Content-Type: application/json
 
 ---
 
-## Fluxo de Recuperação de Senha (Frontend)
+#### 6. Alterar Senha (Logado)
+```
+PUT /api/auth/change-password
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
 
-A implementação no backend suporta o fluxo de 4 etapas do seu frontend:
+{
+  "senhaAtual": "minhasenha123",
+  "novaSenha": "novaSenha456"
+}
+```
 
-1. **Step 1**: Email → `POST /password-recovery/request-code`
-2. **Step 2**: Código 4-dígitos → `POST /password-recovery/verify-code`
-4. **Step 4**: Sucesso (redirecionamento no frontend)
+**Resposta (200 OK)**:
+```json
+{
+  "message": "Senha alterada com sucesso"
+}
+```
+
+**Erro (400)**:
+- `"Senha atual inválida..."` - Senha atual está incorreta
+- `"Nova senha deve ter no mínimo 6 caracteres"` - Validação de comprimento
 
 ---
 
-## Recursos de Segurança
+#### 7. Deletar Conta
+```
+DELETE /api/auth/account
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
 
-- **Senhas com Hash**: BCrypt com salt
-- **Tokens JWT**: Válidos por 7 dias
-- **Códigos de Verificação**: Expiram em 15 minutos
-- **CORS Habilitado**: Aceita requisições do frontend
-- **Email Único**: Index de banco de dados garante unicidade
+{
+  "senha": "minhasenha123"
+}
+```
+
+**Resposta (200 OK)**:
+```json
+{
+  "message": "Conta deletada com sucesso"
+}
+```
+
+**Nota**: A conta é marcada como inativa (soft delete). Todos os dados são preservados no banco de dados.
 
 ---
 
-## Variáveis de Configuração
+### **PERFIL** (2 endpoints) ⭐ NOVO
+
+#### 8. Obter Perfil
+```
+GET /api/perfil
+Authorization: Bearer <jwt_token>
+```
+
+**Resposta (200 OK)**:
+```json
+{
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "telefone": "11999999999",
+  "linkedin": "linkedin.com/in/joao",
+  "portfolio": "joao.dev",
+  "formacoes": [
+    {
+      "id": 1,
+      "instituicao": "USP",
+      "curso": "Ciência da Computação",
+      "tipo": "Graduação",
+      "dataInicio": "2020-01-01",
+      "dataConclusao": "2024-12-15"
+    }
+  ],
+  "experiencias": [
+    {
+      "id": 1,
+      "empresa": "TechCorp",
+      "cargo": "Dev Senior",
+      "empregoAtual": true,
+      "dataInicio": "2022-06-01",
+      "dataFim": null,
+      "atividades": "Desenvolvimento de APIs",
+      "tecnologias": ["C#", "ASP.NET", "SQL Server"],
+      "resultados": "Reduziu tempo de resposta em 40%"
+    }
+  ],
+  "competenciasTecnicas": ["C#", "ASP.NET", "React", "SQL Server"],
+  "objetivosProfissionais": "Ser arquiteto de software",
+  "softSkills": ["Liderança", "Comunicação", "Trabalho em Equipe"]
+}
+```
+
+---
+
+#### 9. Salvar Perfil
+```
+PUT /api/perfil
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "telefone": "11999999999",
+  "linkedin": "linkedin.com/in/joao",
+  "portfolio": "joao.dev",
+  "formacoes": [
+    {
+      "instituicao": "USP",
+      "curso": "Ciência da Computação",
+      "tipo": "Graduação",
+      "dataInicio": "2020-01-01",
+      "dataConclusao": "2024-12-15"
+    }
+  ],
+  "experiencias": [
+    {
+      "empresa": "TechCorp",
+      "cargo": "Dev Senior",
+      "empregoAtual": true,
+      "dataInicio": "2022-06-01",
+      "dataFim": null,
+      "atividades": "Desenvolvimento de APIs",
+      "tecnologias": ["C#", "ASP.NET"],
+      "resultados": "Reduziu tempo de resposta"
+    }
+  ],
+  "competenciasTecnicas": ["C#", "ASP.NET", "React"],
+  "objetivosProfissionais": "Ser arquiteto de software",
+  "softSkills": ["Liderança", "Comunicação"]
+}
+```
+
+**Resposta (200 OK)**: Retorna o perfil atualizado
+
+---
+
+### **CURRÍCULO** (4 endpoints) ⭐ NOVO
+
+#### 10. Gerar Currículo com IA
+```
+POST /api/curriculos/gerar
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "descricaoVaga": "Procuramos um Dev Senior com C#, ASP.NET e React...",
+  "consentimentoIA": true
+}
+```
+
+**Resposta (200 OK)**:
+```json
+{
+  "id": 0,
+  "titulo": "CV - João Silva",
+  "secoes": {
+    "cabecalho": {
+      "nome": "João Silva",
+      "titulo": "Senior Developer",
+      "email": "joao@example.com",
+      "telefone": "11999999999",
+      "linkedin": "linkedin.com/in/joao",
+      "portfolio": "joao.dev",
+      "localizacao": "São Paulo, SP"
+    },
+    "resumoBio": {
+      "conteudo": "Profissional com experiência em desenvolvimento..."
+    },
+    "experiencias": [
+      {
+        "empresa": "TechCorp",
+        "cargo": "Dev Senior",
+        "dataInicio": "2022-06-01",
+        "dataFim": null,
+        "descricao": "Descrição otimizada para a vaga...",
+        "tecnologias": ["C#", "ASP.NET", "SQL"]
+      }
+    ],
+    "competencias": {
+      "tecnicas": ["C#", "ASP.NET", "React", "SQL Server"],
+      "comportamentais": ["Liderança", "Comunicação"]
+    },
+    "formacoes": [
+      {
+        "instituicao": "USP",
+        "curso": "Ciência da Computação",
+        "tipo": "Graduação",
+        "dataInicio": "2020-01-01",
+        "dataConclusao": "2024-12-15"
+      }
+    ],
+    "certificacoes": []
+  }
+}
+```
+
+---
+
+#### 11. Salvar Currículo
+```
+POST /api/curriculos/salvar
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "titulo": "CV - TechCorp Senior Dev",
+  "descricaoVaga": "Procuramos um Dev Senior com C#...",
+  "secoes": { /* mesma estrutura do endpoint gerar */ },
+  "cabecalhoEditado": false,
+  "resumoBioEditado": true,
+  "experienciaEditada": false,
+  "competenciasEditadas": false,
+  "formacaoEditada": false
+}
+```
+
+**Resposta (200 OK)**:
+```json
+{
+  "id": 1,
+  "titulo": "CV - TechCorp Senior Dev",
+  "secoes": { },
+  "dataGeracao": "2026-04-27T10:45:00Z",
+  "dataAtualizacao": null,
+  "cabecalhoEditado": false,
+  "resumoBioEditado": true
+}
+```
+
+---
+
+#### 12. Listar Currículos
+```
+GET /api/curriculos
+Authorization: Bearer <jwt_token>
+```
+
+**Resposta (200 OK)**:
+```json
+[
+  {
+    "id": 1,
+    "titulo": "CV - TechCorp Senior Dev",
+    "dataGeracao": "2026-04-27T10:45:00Z",
+    "descricaoVaga": "Procuramos um Dev Senior...",
+    "visualizacoes": 0,
+    "foiEditado": true
+  },
+  {
+    "id": 2,
+    "titulo": "CV - Startup Frontend",
+    "dataGeracao": "2026-04-26T15:30:00Z",
+    "descricaoVaga": "Procuramos um Dev Frontend React...",
+    "visualizacoes": 5,
+    "foiEditado": false
+  }
+]
+```
+
+---
+
+#### 13. Obter Detalhes do Currículo
+```
+GET /api/curriculos/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Resposta (200 OK)**:
+```json
+{
+  "id": 1,
+  "titulo": "CV - TechCorp Senior Dev",
+  "descricaoVaga": "Procuramos um Dev Senior...",
+  "secoes": { /* estrutura completa */ },
+  "dataGeracao": "2026-04-27T10:45:00Z",
+  "dataAtualizacao": "2026-04-27T11:20:00Z",
+  "cabecalhoEditado": false,
+  "resumoBioEditado": true,
+  "experienciaEditada": false,
+  "competenciasEditadas": false,
+  "formacaoEditada": false
+}
+```
+
+---
+
+## 🔐 Recursos de Segurança
+
+- ✅ **Senhas com Hash**: BCrypt com salt automático
+- ✅ **Tokens JWT**: Válidos por 7 dias, assinados com chave secreta
+- ✅ **Códigos de Verificação**: Expiram em 15 minutos
+- ✅ **CORS Habilitado**: Aceita requisições do frontend
+- ✅ **Email Único**: Index de banco de dados garante unicidade
+- ✅ **Endpoints Protegidos**: Requerem token JWT válido
+- ✅ **Validação de Entrada**: Todos os dados são validados
+
+---
+
+## ⚙️ Variáveis de Configuração
 
 **`appsettings.json`**:
 ```json
@@ -156,63 +439,55 @@ A implementação no backend suporta o fluxo de 4 etapas do seu frontend:
     "DefaultConnection": "Data Source=skillmatch.db"
   },
   "Jwt": {
-    "Key": "your-secret-key-change-this-in-production-minimum-32-characters-long",
+    "Key": "your-secret-key-change-this-in-production",
     "Issuer": "SkillMatch",
     "Audience": "SkillMatchApp"
   }
 }
 ```
 
-**TODO em Produção**: 
-- Mudar a chave JWT para uma chave segura e única
-- Implementar envio real de emails
-
 ---
 
-## Testando a API
+## 🧪 Testando a API
 
-### Usando cURL
+### Opção 1: Arquivo HTTP (VS Code)
+Abra `backend/SkillMatch.Api/SkillMatch.Api.http` e clique em "Send Request"
 
-**Login**:
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","senha":"password123"}'
-```
+### Opção 2: Frontend
+Abra `index.html` com Live Server e use os formulários
 
-**Registro**:
+### Opção 3: cURL
 ```bash
 curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Test User","email":"test@example.com","senha":"password123"}'
+  -d '{"nome":"João","email":"joao@test.com","senha":"123456"}'
 ```
 
-### Usando Postman/Insomnia
-Importe este arquivo ou crie coleções com os endpoints acima.
+---
+
+## 📊 Modelo de Dados
+
+**Tabelas**: Usuarios, PasswordResetTokens, Formacoes, Experiencias, Curriculos
+
+**Relacionamentos**:
+- Usuario (1) ──→ (N) Formacao
+- Usuario (1) ──→ (N) Experiencia
+- Usuario (1) ──→ (N) Curriculo
+- Usuario (1) ──→ (N) PasswordResetToken
 
 ---
 
-## Próximos Passos
+## 🚀 Próximos Passos
 
-1. **Email Service**: Integrar envio de emails (SendGrid, SMTP, etc.)
-2. **Perfil do Usuário**: Endpoints GET/PUT `/api/perfil`
-3. **Currículo**: Endpoints para gerenciar CVs
-4. **Autenticação em Endpoints Protegidos**: Usar header `Authorization: Bearer <token>`
-
----
-
-## Troubleshooting
-
-**Erro: "Email já está em uso"**
-- O email já foi registrado. Use outro email ou reset a senha.
-
-**Erro: "Código inválido ou expirado"**
-- O código expirou (15 minutos) ou está incorreto.
-- Solicite um novo código.
-
-**Erro: CORS bloqueado**
-- Verifique se o frontend está enviando as requisições para `http://localhost:5000/api`
+- [ ] Email Service (SendGrid/SMTP)
+- [ ] IA Integration (OpenAI)
+- [ ] PDF Export
+- [ ] Share CV Link
+- [ ] Tests
+- [ ] Rate Limiting
+- [ ] Audit Logging
 
 ---
 
-**Desenvolvido em**: 12 de Abril de 2026
+**Última atualização**: 27 de Abril de 2026 (13 endpoints, 2 novos)
+**Status**: ✅ Pronto para Testes

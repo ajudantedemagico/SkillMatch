@@ -38,7 +38,7 @@ const api = {
       method: 'POST', body: JSON.stringify({ nome, email, senha })
     });
     this.setToken(data.token);
-    this.setUser({ id: data.usuarioId, nome: data.nome });
+    this.setUser({ id: data.usuarioId, nome: data.nome, email });
     return data;
   },
 
@@ -47,13 +47,29 @@ const api = {
       method: 'POST', body: JSON.stringify({ email, senha })
     });
     this.setToken(data.token);
-    this.setUser({ id: data.usuarioId, nome: data.nome });
+    this.setUser({ id: data.usuarioId, nome: data.nome, email });
     return data;
   },
 
   logout() {
     this.clearToken();
     window.location.href = '/index.html';
+  },
+
+  async changePassword(senhaAtual, novaSenha) {
+    const data = await this._fetch('/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify({ senhaAtual, novaSenha })
+    });
+    return data;
+  },
+
+  async deleteAccount(senha) {
+    const data = await this._fetch('/auth/account', {
+      method: 'DELETE',
+      body: JSON.stringify({ senha })
+    });
+    return data;
   },
 
   // ── Perfil Âncora ──

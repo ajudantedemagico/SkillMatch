@@ -252,3 +252,15 @@ body {
 .text-muted { opacity: 0.65; }
 .divider { border: none; border-top: 1px solid var(--gray-300); margin: 16px 0; }
 .pb-nav { padding-bottom: 80px; } /* espaço para nav inferior */
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  background: rgba(176,102,245,0.2);
+  color: #B066F5;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid rgba(176,102,245,0.3);
+}

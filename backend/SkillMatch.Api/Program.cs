@@ -52,6 +52,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<ICurriculoService, CurriculoService>();
 
 var app = builder.Build();
 

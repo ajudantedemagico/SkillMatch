@@ -127,8 +127,8 @@ SkillMatch/
 │       └── style.css        # Estilos
 ├── docs/
 │   └── api-endpoints.md     # Documentação técnica
-├── API_DOCUMENTATION.md     # Guia de uso da API
-└── README.md               # Este arquivo
+├── API_DOCUMENTATION.md     
+└── README.md               
 ```
 
 ## Fluxo de Autenticação

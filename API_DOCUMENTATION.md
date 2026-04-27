@@ -1,6 +1,6 @@
 # SkillMatch Backend - Documentação da API
 
-## Status da Implementação ✅
+## Status da Implementação 
 
 O backend está **totalmente funcional** para login, registro e recuperação de senha.
 
@@ -80,7 +80,7 @@ Content-Type: application/json
 }
 ```
 
-⚠️ **IMPORTANTE**: Atualmente, o código é retornado na resposta (apenas para testes). Em produção, será enviado por email.
+ **IMPORTANTE**: Atualmente, o código é retornado na resposta (apenas para testes). Em produção, será enviado por email.
 
 ---
 
@@ -131,20 +131,19 @@ Content-Type: application/json
 
 A implementação no backend suporta o fluxo de 4 etapas do seu frontend:
 
-1. ✅ **Step 1**: Email → `POST /password-recovery/request-code`
-2. ✅ **Step 2**: Código 4-dígitos → `POST /password-recovery/verify-code`
-3. ✅ **Step 3**: Nova senha → `POST /password-recovery/reset`
-4. ✅ **Step 4**: Sucesso (redirecionamento no frontend)
+1. **Step 1**: Email → `POST /password-recovery/request-code`
+2. **Step 2**: Código 4-dígitos → `POST /password-recovery/verify-code`
+4. **Step 4**: Sucesso (redirecionamento no frontend)
 
 ---
 
 ## Recursos de Segurança
 
-- ✅ **Senhas com Hash**: BCrypt com salt
-- ✅ **Tokens JWT**: Válidos por 7 dias
-- ✅ **Códigos de Verificação**: Expiram em 15 minutos
-- ✅ **CORS Habilitado**: Aceita requisições do frontend
-- ✅ **Email Único**: Index de banco de dados garante unicidade
+- **Senhas com Hash**: BCrypt com salt
+- **Tokens JWT**: Válidos por 7 dias
+- **Códigos de Verificação**: Expiram em 15 minutos
+- **CORS Habilitado**: Aceita requisições do frontend
+- **Email Único**: Index de banco de dados garante unicidade
 
 ---
 
@@ -164,7 +163,7 @@ A implementação no backend suporta o fluxo de 4 etapas do seu frontend:
 }
 ```
 
-⚠️ **TODO em Produção**: 
+**TODO em Produção**: 
 - Mudar a chave JWT para uma chave segura e única
 - Implementar envio real de emails
 

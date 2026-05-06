@@ -226,11 +226,11 @@ body {
 
 /* ── Tela principal ── */
 .home-hero {
-  padding: 40px 24px 20px;
+  padding: 24px 24px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   text-align: center;
   flex: 1;
 }
@@ -269,11 +269,13 @@ body {
   opacity: 0.95;
 }
 .home-actions {
-  padding: 20px 16px 32px;
+  padding: 8px 16px 20px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  margin-top: -32px;
+  margin-top: -90px;
+  position: relative;
+  z-index: 2;
 }
 
 .home-actions > :nth-child(3) {
@@ -354,7 +356,7 @@ body {
 .text-sm { font-size: 13px; }
 .text-muted { opacity: 0.65; }
 .divider { border: none; border-top: 1px solid var(--gray-300); margin: 16px 0; }
-.pb-nav { padding-bottom: 80px; } /* espaço para nav inferior */
+.pb-nav { padding-bottom: 50%; } /* espaço para nav inferior */
 
 /* ── Badge ── */
 .badge {

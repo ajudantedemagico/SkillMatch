@@ -343,3 +343,4 @@ public class CurriculoService : ICurriculoService
 
         return html.ToString();
     }
+}
